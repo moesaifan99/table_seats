@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Tables with Seats</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #left-container, #right-container {
+            width: 45%;
+            height: 90vh;
+            margin: 20px;
+            border: 1px solid #ccc;
+            border-radius: 10px;
+            background-color: #fff;
+            position: relative;
+            overflow: hidden;
+        }
+        #dance-floor {
+            width: 30%;
+            height: 50vh;
+            background-color: #333;
+            position: relative;
+            display: inline-block;
+            margin: 20px;
+            border-radius: 10px;
+            background-image: linear-gradient(45deg, #333 25%, #444 25%, #444 50%, #333 50%, #333 75%, #444 75%, #444);
+            background-size: 20px 20px;
+            z-index: 1; 
+        }
+        
+        #groom-bride {
+            width: 14%;
+            height: 10vh;
+            background-color: #333;
+            position: absolute; 
+            top: 10%; 
+            left: 45%; 
+            border-radius: 10px;
+            background-image: linear-gradient(45deg, #333 25%, #444 25%, #444 50%, #333 50%, #333 75%, #444 75%, #444);
+            background-size: 70px 20px;
+            z-index: 2; 
+        }
+
+        #door {
+            width: 4%;
+            height: 10vh;
+            background-color: #333;
+            position: absolute; 
+            top: 80%; 
+            left: 50%; 
+            border-radius: 10px;
+            background-image: linear-gradient(45deg, #333 25%, #444 25%, #444 50%, #333 50%, #333 75%, #444 75%, #444);
+            background-size: 180px 20px;
+            z-index: 2; 
+        }
+        .table {
+            width: 175px;
+            height: 175px;
+            background-color: #6c757d;
+            border-radius: 100px;
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            cursor: grab;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            color: white;
+            font-weight: bold;
+            text-align: center;
+            user-select: none;
+        }
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+        }
+        button {
+            padding: 10px 20px;
+            background-color: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        button:hover {
+            background-color: #0056b3;
+        }
+        #popup {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 350px;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+            border-radius: 8px;
+            z-index: 1000;
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+        #popup input, #popup button {
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        #popup button {
+            background-color: #28a745;
+            color: white;
+        }
+        #popup button:hover {
+            background-color: #218838;
+        }
+        #overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 999;
+            display: none;
+        }
+        .family-entry {
+            display: flex;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 10px;
+        }
+        .family-entry input {
+            flex: 1;
+        }
+        .family-entry button {
+            flex: none;
+            padding: 5px 10px;
+            background-color: #dc3545;
+            color: white;
+            border: none;
+            border-radius: 5px;
+        }
+        .family-entry button:hover {
+            background-color: #bd2130;
+        }
+        .table .seat {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            margin: 2px;
+            background-color: transparent;
+            border: 2px solid #333;
+            display: inline-block;
+        }
+        
+        .table .seat.filled {
+            background-color: #333;
+        }
+        
+    </style>
+</head>
+<body>
+
+    <div class="controls">
+        <button onclick="addTable('left-container')">Add Table to Left</button>
+        <button onclick="addTable('right-container')">Add Table to Right</button>
+        <button id="undo-action" style="background-color: #dc3545;" onclick="undoLastAction()">Undo</button>
+        <!-- New button added here -->
+        <button id="delete-session" style="background-color: #f39c12;" onclick="deleteSession()">Delete All Tables</button>
+    </div>
+
+    <div style="text-align: center; margin-bottom: 800px;">
+        <button onclick="window.location.href='/'" style="padding: 1px 1px; background-color: #007bff; color: white; border: none; border-radius: 15px; cursor: pointer;">
+            Go Back Home
+        </button>
+    </div>
+
+    <div id="left-container"></div>
+    
+    <!-- Dance floor in the middle -->
+    <div id="dance-floor"></div>
+    
+    <!-- Groom in the middle -->
+    <div id="groom-bride"></div>
+    
+    <!-- Door in the middle -->
+    <div id="door"></div>
+    
+    <div id="right-container"></div>
+
+
+
+    <div id="overlay"></div>
+    <div id="popup" style="display:none">
+        <div id="family-list"></div>
+        <input id="family-name" type="text">
+        <input id="num-seats" type="number">
+        <button onclick="addFamily()">Add Family</button>
+        <button onclick="closePopup()">Close</button>
+    </div>
+    <div id="overlay" style="display:none" onclick="closePopup()"></div>
+
+    <script>
+        let actionStack = []; // To track actions for undo
+        let tableCounter = localStorage.getItem('tableCounter') ? parseInt(localStorage.getItem('tableCounter')) : 1;
+        let activeTable = null;
+        const data = JSON.parse(localStorage.getItem('tableData')) || {};
+    
+        // Function to delete all tables
+        function deleteAllTables() {
+            // Save the current state to allow undo
+            actionStack.push({ type: 'deleteAll', data: { ...data } });
+    
+            // Clear the containers and reset the data object
+            document.getElementById('left-container').innerHTML = '';
+            document.getElementById('right-container').innerHTML = '';
+            Object.keys(data).forEach(key => delete data[key]);
+    
+            // Save the empty data object
+            saveData();
+        }
+    
+        // Function to undo the last action
+        function undoLastAction() {
+            if (actionStack.length === 0) {
+                alert('No actions to undo!');
+                return;
+            }
+    
+            const lastAction = actionStack.pop();
+            if (lastAction.type === 'deleteAll') {
+                // If the last action was deleteAll, restore the previous state
+                Object.entries(lastAction.data).forEach(([id, tableData]) => {
+                    data[id] = tableData;
+                });
+                saveData();
+            } else if (lastAction.type === 'add') {
+                // Remove the last added table
+                const { tableId, containerId } = lastAction;
+                const tableElement = document.getElementById(tableId);
+                if (tableElement) {
+                    tableElement.remove(); // Remove the table from the DOM
+                }
+                delete data[tableId]; // Delete it from the data object
+                saveData();
+            }
+        }
+    
+        // Function to add table
+        function addTable(containerId) {
+            const container = document.getElementById(containerId);
+            const tableId = `Table ${tableCounter}`;  // Use the current tableCounter value for the tableId
+            const table = document.createElement('div');
+            table.className = 'table';
+            table.id = tableId;
+            table.dataset.seats = 0;
+            table.textContent = `Table ${tableCounter}\nSeats: 0`;
+            tableCounter++;  // Now increment the tableCounter
+        
+            // Create seat-container to hold seats for this table
+            const seatContainer = document.createElement('div');
+            seatContainer.className = 'seat-container';
+            table.appendChild(seatContainer);
+        
+            makeDraggable(table);
+        
+            // When double-clicked, open the popup to add people and seats
+            table.addEventListener('dblclick', () => {
+                console.log('Active Table ID:', tableId); // Debugging
+                activeTable = tableId;
+                openPopup();
+            });
+        
+            container.appendChild(table);
+        
+            // Track the action for undo
+            data[tableId] = {
+                containerId,
+                left: 20,
+                top: 20,
+                seats: 0,
+                families: []
+            };
+        
+            // Store the action to allow undoing
+            actionStack.push({ type: 'add', tableId, containerId });
+            saveData();
+        }
+        
+
+    
+        function openPopup() {
+            const familyList = document.getElementById('family-list');
+            familyList.innerHTML = '';  // Clear existing list
+        
+            const tableData = data[activeTable];  // Get the data for the active table
+            tableData.families.forEach((family, index) => {
+                const entry = document.createElement('div');
+                entry.className = 'family-entry';
+                entry.innerHTML = `
+                    <span>${family.name} (${family.seats} seats)</span>
+                    <button onclick="removeFamily(${index})">Remove</button>
+                `;
+                familyList.appendChild(entry);  // Add family entry to the list
+            });
+        
+            // Show the popup
+            document.getElementById('popup').style.display = 'flex';
+            document.getElementById('overlay').style.display = 'block';
+        }
+    
+        function closePopup() {
+            document.getElementById('popup').style.display = 'none';
+            document.getElementById('overlay').style.display = 'none';
+        }
+    
+        function addFamily() {
+            const name = document.getElementById('family-name').value;
+            const seats = parseInt(document.getElementById('num-seats').value, 10);
+        
+            if (name && seats) {
+                const tableData = data[activeTable]; // Get the data for the active table
+                tableData.families.push({ name, seats });  // Add new family to the table's families array
+        
+                // Update the total seats
+                updateTotalSeats(tableData);
+        
+                // Save the new family data and close the popup
+                saveData();
+                closePopup();
+            } else {
+                alert('Please fill in both fields');
+            }
+        }
+        
+    
+        function removeFamily(index) {
+            const tableData = data[activeTable];
+            tableData.families.splice(index, 1);  // Remove the family at the specified index
+    
+            // Recalculate the total seats
+            updateTotalSeats(tableData);
+    
+            saveData();  // Save the updated data
+            closePopup();  // Close the popup
+        }
+    
+        function saveTableData() {
+            const table = document.getElementById(activeTable);
+            const tableData = data[activeTable];
+            table.textContent = `Table ${activeTable.slice(-1)}\nSeats: ${tableData.seats}`;
+    
+            updateTotalSeats(tableData);
+            closePopup();
+        }
+    
+        function makeDraggable(table) {
+            let offsetX, offsetY, dragging = false;
+        
+            // Restore position if exists in localStorage
+            const savedPosition = JSON.parse(localStorage.getItem(table.id));
+            if (savedPosition) {
+                table.style.left = `${savedPosition.left}px`;
+                table.style.top = `${savedPosition.top}px`;
+            }
+        
+            // Event listener for mousedown to initiate drag
+            table.addEventListener('mousedown', (e) => {
+                offsetX = e.clientX - table.offsetLeft;
+                offsetY = e.clientY - table.offsetTop;
+                dragging = true;
+                table.style.cursor = 'grabbing';  // Change cursor to grabbing
+            });
+        
+            // Event listener for mousemove to move the table
+            window.addEventListener('mousemove', (e) => {
+                if (dragging) {
+                    const left = e.clientX - offsetX;
+                    const top = e.clientY - offsetY;
+        
+                    // Update table position dynamically while dragging
+                    table.style.left = `${left}px`;
+                    table.style.top = `${top}px`;
+                }
+            });
+        
+            // Event listener for mouseup to stop dragging
+            window.addEventListener('mouseup', () => {
+                if (dragging) {
+                    dragging = false;
+                    table.style.cursor = 'grab';  // Change cursor back to grab
+        
+                    // Save the table's new position in localStorage
+                    const position = {
+                        left: table.offsetLeft,
+                        top: table.offsetTop
+                    };
+                    localStorage.setItem(table.id, JSON.stringify(position));  // Save position to localStorage
+                }
+            });
+        }
+        
+    
+        // Function to save the data object to local storage
+        function saveData() {
+            // Save the current table data to localStorage
+            localStorage.setItem('tableData', JSON.stringify(data));
+            localStorage.setItem('tableCounter', tableCounter);
+        }
+    
+        // Function to delete saved session
+        function deleteSession() {
+            // Clear the localStorage data
+            localStorage.removeItem('tableData');
+            localStorage.removeItem('tableCounter');
+    
+            // Optionally, you could also refresh the page or reset the UI
+            location.reload();
+        }
+    
+        function updateTotalSeats(tableData) {
+            // Recalculate total seats for the table
+            let totalSeats = 0;
+            tableData.families.forEach(family => {
+                totalSeats += family.seats;
+            });
+    
+            // Update the table's seats property and the display
+            tableData.seats = totalSeats;
+    
+            const table = document.getElementById(activeTable);
+            table.textContent = `Table ${activeTable.slice(-1)}\nSeats: ${totalSeats}`;
+    
+            // Create or update the seat visualization
+            const seatContainer = table.querySelector('.seat-container') || document.createElement('div');
+            seatContainer.className = 'seat-container';
+            seatContainer.innerHTML = '';  // Clear existing seats
+    
+            // Add filled and empty seats as circles
+            for (let i = 0; i < 10; i++) {
+                const seat = document.createElement('div');
+                seat.classList.add('seat');
+                if (i < totalSeats) {
+                    seat.classList.add('filled');  // Mark seat as filled if within the total seats
+                }
+                seatContainer.appendChild(seat);
+            }
+    
+            // Append the seat container to the table if it's not already there
+            if (!table.contains(seatContainer)) {
+                table.appendChild(seatContainer);
+            }
+    
+            saveData();
+        }
+    
+        // Rebuild tables and seats from saved data when the page loads
+        function rebuildTables() {
+            Object.entries(data).forEach(([tableId, tableData]) => {
+                const container = document.getElementById(tableData.containerId);
+                
+                // Create the table element
+                const table = document.createElement('div');
+                table.className = 'table';
+                table.id = tableId;
+                table.dataset.seats = tableData.seats;
+                table.style.left = `${tableData.left}px`;
+                table.style.top = `${tableData.top}px`;
+                table.textContent = `${tableId}\nSeats: ${tableData.seats}`;
+                
+                // Create and populate the seat container
+                const seatContainer = document.createElement('div');
+                seatContainer.className = 'seat-container';
+        
+                // Populate 10 seats: filled for occupied and default for open
+                for (let i = 0; i < 10; i++) {
+                    const seat = document.createElement('div');
+                    seat.classList.add('seat');
+                    if (i < tableData.seats) {
+                        seat.classList.add('filled');  // Mark seat as filled if within the total seats
+                    }
+                    seatContainer.appendChild(seat);
+                }
+        
+                // Append the seat container to the table
+                if (!table.contains(seatContainer)) {
+                    table.appendChild(seatContainer);
+                }
+        
+                // Reapply event listeners for draggable and double-click actions
+                makeDraggable(table);
+                table.addEventListener('dblclick', () => {
+                    activeTable = tableId;
+                    openPopup();
+                });
+        
+                // Append the table to the container
+                container.appendChild(table);
+            });
+        
+            saveData(); // Save the state after rebuilding
+        }
+        
+        
+    
+        // Call rebuildTables when the page loads
+        document.addEventListener('DOMContentLoaded', () => {
+            rebuildTables();
+        });
+    
+    </script>
+    
+
+</body>
+</html>
+
+
+
+
+
