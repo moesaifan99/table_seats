@@ -62,6 +62,10 @@
             background-size: 180px 20px;
             z-index: 2; 
         }
+        .container {
+            position: relative;
+        }
+
         .table {
             width: 175px;
             height: 175px;
@@ -180,7 +184,10 @@
         <button onclick="addTable('right-container')">Add Table to Right</button>
         <button id="undo-action" style="background-color: #dc3545;" onclick="undoLastAction()">Undo</button>
         <button id="delete-session" style="background-color: #f39c12;" onclick="deleteSession()">Delete All Tables</button>
+        <button onclick="downloadSession()">Download Session</button>
+        <button onclick="document.getElementById('upload-input').click()">Upload Session</button>
     </div>
+    <input type="file" id="upload-input" style="display: none" accept=".json" onchange="handleFileUpload(event)"/>
 
     <div style="text-align: center; margin-bottom: 800px;">
         <button onclick="window.location.href='/'" style="padding: 1px 1px; background-color: #007bff; color: white; border: none; border-radius: 15px; cursor: pointer;">
@@ -274,7 +281,7 @@
         
             // When double-clicked, open the popup to add people and seats
             table.addEventListener('dblclick', () => {
-                console.log('Active Table ID:', tableId); // Debugging
+                // Debuggingconsole.log('Active Table ID:', tableId); 
                 activeTable = tableId;
                 openPopup();
             });
@@ -285,11 +292,12 @@
             data[tableId] = {
                 containerId,
                 left: 20,
-                top: 20,
+                top: 40,
                 seats: 0,
                 families: []
             };
         
+            
             // Store the action to allow undoing
             actionStack.push({ type: 'add', tableId, containerId });
             saveData();
@@ -370,6 +378,12 @@
             if (savedPosition) {
                 table.style.left = `${savedPosition.left}px`;
                 table.style.top = `${savedPosition.top}px`;
+                
+                // Update data object with restored position
+                if (data[table.id]) {
+                    data[table.id].left = savedPosition.left;
+                    data[table.id].top = savedPosition.top;
+                }
             }
         
             // Event listener for mousedown to initiate drag
@@ -404,6 +418,15 @@
                         top: table.offsetTop
                     };
                     localStorage.setItem(table.id, JSON.stringify(position));  // Save position to localStorage
+        
+                    // Update the `data` object with the new position
+                    if (data[table.id]) {
+                        data[table.id].left = position.left;
+                        data[table.id].top = position.top;
+                    }
+        
+                    // Save the updated data object to localStorage
+                    saveData();
                 }
             });
         }
@@ -415,6 +438,7 @@
             localStorage.setItem('tableData', JSON.stringify(data));
             localStorage.setItem('tableCounter', tableCounter);
         }
+        
     
         // Function to delete saved session
         function deleteSession() {
@@ -462,12 +486,66 @@
             saveData();
         }
     
+        
+        function downloadSession() {
+            // Prepare the data to be saved, including tableId, containerId, seats, left, top, and families
+            const sessionData = Object.keys(data).map(tableId => {
+                const table = data[tableId];
+                return {
+                    tableId: tableId,
+                    containerId: table.containerId,
+                    seats: table.seats,
+                    left: table.left,
+                    top: table.top,
+                    families: table.families
+                };
+            });
+        
+            // Convert the session data to a JSON string
+            const jsonData = JSON.stringify(sessionData, null, 2);
+        
+            // Create a Blob from the JSON data
+            const blob = new Blob([jsonData], { type: 'application/json' });
+            
+            // Create a link to trigger the download
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'session_data.json';
+            
+            // Trigger the download
+            link.click();
+        }
+        
+        function handleFileUpload(event) {
+            const file = event.target.files[0];
+            if (file && file.type === 'application/json') {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const uploadedData = JSON.parse(e.target.result);
+                    // Debuggingconsole.log("file from localStorage:", uploadedData);
+                    localStorage.setItem('tableData', JSON.stringify(uploadedData));
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please upload a valid JSON file.');
+            }
+        }
+
         // Rebuild tables and seats from saved data when the page loads
         function rebuildTables() {
+            // Debuggingconsole.log("Data from localStorage:", data);
+        
+            if (Object.keys(data).length === 0) {
+                return; // Exit if there's no data to rebuild
+            }
+        
             Object.entries(data).forEach(([tableId, tableData]) => {
                 const container = document.getElementById(tableData.containerId);
+                if (!container) {
+                    return; // Exit if container doesn't exist
+                }
                 
-                // Create the table element
+                
                 const table = document.createElement('div');
                 table.className = 'table';
                 table.id = tableId;
@@ -475,47 +553,40 @@
                 table.style.left = `${tableData.left}px`;
                 table.style.top = `${tableData.top}px`;
                 table.textContent = `${tableId}\nSeats: ${tableData.seats}`;
-                
-                // Create and populate the seat container
+                console.log(tableData)
+        
                 const seatContainer = document.createElement('div');
                 seatContainer.className = 'seat-container';
         
-                // Populate 10 seats: filled for occupied and default for open
                 for (let i = 0; i < 10; i++) {
                     const seat = document.createElement('div');
                     seat.classList.add('seat');
                     if (i < tableData.seats) {
-                        seat.classList.add('filled');  // Mark seat as filled if within the total seats
+                        seat.classList.add('filled');
                     }
                     seatContainer.appendChild(seat);
                 }
         
-                // Append the seat container to the table
                 if (!table.contains(seatContainer)) {
                     table.appendChild(seatContainer);
                 }
         
-                // Reapply event listeners for draggable and double-click actions
                 makeDraggable(table);
                 table.addEventListener('dblclick', () => {
                     activeTable = tableId;
                     openPopup();
                 });
         
-                // Append the table to the container
                 container.appendChild(table);
             });
         
             saveData(); // Save the state after rebuilding
         }
         
-        
-    
-        // Call rebuildTables when the page loads
         document.addEventListener('DOMContentLoaded', () => {
             rebuildTables();
         });
-    
+
     </script>
     
 
