@@ -1,0 +1,221 @@
+[
+  {
+    "tableId": "0",
+    "containerId": "left-container",
+    "seats": 8,
+    "left": 539,
+    "top": 152,
+    "families": [
+      {
+        "name": "Khaled Saifan",
+        "seats": 8
+      }
+    ]
+  },
+  {
+    "tableId": "1",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 7,
+    "top": 153,
+    "families": []
+  },
+  {
+    "tableId": "2",
+    "containerId": "left-container",
+    "seats": 10,
+    "left": 441,
+    "top": 337,
+    "families": [
+      {
+        "name": "Yahya Saifan",
+        "seats": 5
+      },
+      {
+        "name": "Akram Yasien",
+        "seats": 5
+      }
+    ]
+  },
+  {
+    "tableId": "3",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 97,
+    "top": 329,
+    "families": []
+  },
+  {
+    "tableId": "4",
+    "containerId": "left-container",
+    "seats": 10,
+    "left": 447,
+    "top": 547,
+    "families": [
+      {
+        "name": "Ibrahim Suaifan",
+        "seats": 4
+      },
+      {
+        "name": "Ali & Doaa",
+        "seats": 2
+      },
+      {
+        "name": "Jihad Jabir",
+        "seats": 4
+      }
+    ]
+  },
+  {
+    "tableId": "5",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 103,
+    "top": 546,
+    "families": []
+  },
+  {
+    "tableId": "6",
+    "containerId": "left-container",
+    "seats": 9,
+    "left": 532,
+    "top": 746,
+    "families": [
+      {
+        "name": "Saleh Abu Nasir",
+        "seats": 3
+      },
+      {
+        "name": "Majdi Kalash",
+        "seats": 4
+      },
+      {
+        "name": "Naser Abu El Hawa",
+        "seats": 2
+      }
+    ]
+  },
+  {
+    "tableId": "7",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 15,
+    "top": 745,
+    "families": []
+  },
+  {
+    "tableId": "8",
+    "containerId": "left-container",
+    "seats": 11,
+    "left": 242,
+    "top": 218,
+    "families": [
+      {
+        "name": "Hussein Odeh",
+        "seats": 3
+      },
+      {
+        "name": "Ibrahim Odeh",
+        "seats": 2
+      },
+      {
+        "name": "Saher Odeh",
+        "seats": 2
+      },
+      {
+        "name": "Heithem Odeh",
+        "seats": 2
+      },
+      {
+        "name": "Walid Jaludi",
+        "seats": 2
+      }
+    ]
+  },
+  {
+    "tableId": "9",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 298,
+    "top": 250,
+    "families": []
+  },
+  {
+    "tableId": "10",
+    "containerId": "left-container",
+    "seats": 10,
+    "left": 184,
+    "top": 433,
+    "families": [
+      {
+        "name": "Samir Issa",
+        "seats": 3
+      },
+      {
+        "name": "Wisam Daraghmeh",
+        "seats": 2
+      },
+      {
+        "name": "Omar Warraky",
+        "seats": 3
+      },
+      {
+        "name": "Eyad & Sara",
+        "seats": 2
+      }
+    ]
+  },
+  {
+    "tableId": "11",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 355,
+    "top": 460,
+    "families": []
+  },
+  {
+    "tableId": "12",
+    "containerId": "left-container",
+    "seats": 7,
+    "left": 250,
+    "top": 664,
+    "families": [
+      {
+        "name": "Elias",
+        "seats": 1
+      },
+      {
+        "name": "Ibrahim Hamza",
+        "seats": 1
+      },
+      {
+        "name": "Malek",
+        "seats": 1
+      },
+      {
+        "name": "Mark",
+        "seats": 1
+      },
+      {
+        "name": "Mohamed Ahmed",
+        "seats": 1
+      },
+      {
+        "name": "Patryk Kaziow",
+        "seats": 1
+      },
+      {
+        "name": "Yousef Elmorsi",
+        "seats": 1
+      }
+    ]
+  },
+  {
+    "tableId": "13",
+    "containerId": "right-container",
+    "seats": 0,
+    "left": 293,
+    "top": 684,
+    "families": []
+  }
+]

@@ -186,6 +186,8 @@
         <button id="delete-session" style="background-color: #f39c12;" onclick="deleteSession()">Delete All Tables</button>
         <button onclick="downloadSession()">Download Session</button>
         <button onclick="document.getElementById('upload-input').click()">Upload Session</button>
+        <button id="loadGuestsBtn">Load Moe's Guests</button>
+
     </div>
     <input type="file" id="upload-input" style="display: none" accept=".json" onchange="handleFileUpload(event)"/>
 
@@ -534,17 +536,18 @@
         // Rebuild tables and seats from saved data when the page loads
         function rebuildTables() {
             // Debuggingconsole.log("Data from localStorage:", data);
-        
             if (Object.keys(data).length === 0) {
+                console.log("returning here")
                 return; // Exit if there's no data to rebuild
             }
         
+            const shouldAddOneToAll = Object.values(data).some(tableData => tableData.tableId === "0");
+
             Object.entries(data).forEach(([tableId, tableData]) => {
                 const container = document.getElementById(tableData.containerId);
                 if (!container) {
                     return; // Exit if container doesn't exist
                 }
-                
                 
                 const table = document.createElement('div');
                 table.className = 'table';
@@ -552,7 +555,13 @@
                 table.dataset.seats = tableData.seats;
                 table.style.left = `${tableData.left}px`;
                 table.style.top = `${tableData.top}px`;
-                table.textContent = `${tableId}\nSeats: ${tableData.seats}`;
+            
+                // If any tableId is "0", add 1 to all tableData.tableId entries
+                if (shouldAddOneToAll) {
+                    table.textContent = `Table ${parseInt(tableData.tableId) + 1}\nSeats: ${tableData.seats}`;
+                } else {
+                    table.textContent = `Table ${tableData.tableId}\nSeats: ${tableData.seats}`;
+                }
                 console.log(tableData)
         
                 const seatContainer = document.createElement('div');
@@ -583,6 +592,37 @@
             saveData(); // Save the state after rebuilding
         }
         
+        document.getElementById('loadGuestsBtn').addEventListener('click', function() {
+            fetch('/load_moes_guests')  // Replace with your actual endpoint
+                .then(response => response.json())  // Assuming the server returns JSON data
+                .then(data => {
+                    console.log('Data from server:', data);
+        
+                    // Convert the data to a Blob (you can specify the MIME type)
+                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+        
+                    // Create a File object from the Blob
+                    const file = new File([blob], 'moesGuests.json', { type: 'application/json' });
+        
+                    // Now, simulate the file input change event
+                    const event = {
+                        target: { files: [file] }
+                    };
+        
+                    // Call handleFileUpload with the simulated file upload event
+                    handleFileUpload(event);
+        
+                    // Optionally, you can rebuild tables or take further actions
+                    rebuildTables();
+                })
+                .catch(error => {
+                    console.error('Error loading data:', error);
+                    alert('Failed to load Moe\'s Guests.');
+                });
+        });
+        
+        
+
         document.addEventListener('DOMContentLoaded', () => {
             rebuildTables();
         });

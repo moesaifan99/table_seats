@@ -1,4 +1,6 @@
-from flask import Flask, render_template, request, redirect, url_for
+from flask import Flask, jsonify, render_template, request, redirect, url_for
+import os
+import json
 
 app = Flask(__name__)
 
@@ -165,6 +167,23 @@ def clear_updates():
 @app.route('/tables')
 def tables():
     return render_template('tables.html')
+
+@app.route('/load_moes_guests', methods=['GET'])
+def load_moes_guests():
+    try:
+        # Path to the session_data.json file in the templates folder
+        file_path = os.path.join('templates', 'session_data.json')
+
+        # Open and load the session_data.json
+        with open(file_path, 'r') as file:
+            session_data = json.load(file)
+
+        return jsonify(session_data)  # Return the JSON data to the client
+
+    except FileNotFoundError:
+        return jsonify({"error": "session_data.json not found"}), 404
+    except json.JSONDecodeError:
+        return jsonify({"error": "Error decoding session_data.json"}), 400
 
 if __name__ == '__main__':
     app.run(debug=True)
