@@ -537,7 +537,7 @@
         function rebuildTables() {
             // Debuggingconsole.log("Data from localStorage:", data);
             if (Object.keys(data).length === 0) {
-                console.log("returning here")
+                //console.log("returning here")
                 return; // Exit if there's no data to rebuild
             }
         
@@ -546,7 +546,8 @@
             Object.entries(data).forEach(([tableId, tableData]) => {
                 const container = document.getElementById(tableData.containerId);
                 if (!container) {
-                    return; // Exit if container doesn't exist
+                    //console.log("No container")
+                    //return; // Exit if container doesn't exist
                 }
                 
                 const table = document.createElement('div');
@@ -598,28 +599,40 @@
                 .then(data => {
                     console.log('Data from server:', data);
         
-                    // Convert the data to a Blob (you can specify the MIME type)
-                    const blob = new Blob([JSON.stringify(data)], { type: 'application/json' });
+                    // Retrieve current table data from localStorage
+                    const currentData = JSON.parse(localStorage.getItem('tableData') || '{}');
+                    // Check if the new data is the same as the current data
+                    if (JSON.stringify(currentData) === JSON.stringify(data)) {
+                        console.log("JSON is already loaded. Skipping delete and rebuild.");
+                        //return;
+                    }
+           
+                    deleteSession();
+                    console.log("local storage", localStorage)
+                    // Save the new data into localStorage to reset the state
+                    localStorage.setItem('tableData', JSON.stringify(data));
         
-                    // Create a File object from the Blob
-                    const file = new File([blob], 'moesGuests.json', { type: 'application/json' });
+                    // Clear any existing tables or settings before applying the new ones
         
-                    // Now, simulate the file input change event
-                    const event = {
-                        target: { files: [file] }
-                    };
-        
-                    // Call handleFileUpload with the simulated file upload event
-                    handleFileUpload(event);
-        
-                    // Optionally, you can rebuild tables or take further actions
-                    rebuildTables();
+                    // Rebuild tables or apply settings based on the loaded JSON
                 })
                 .catch(error => {
                     console.error('Error loading data:', error);
                     alert('Failed to load Moe\'s Guests.');
                 });
         });
+        
+        
+        // Clear all existing tables and reset containers
+        function clearAllTables() {
+            // Remove all tables from left and right containers
+            document.getElementById('left-container').innerHTML = '';
+            document.getElementById('right-container').innerHTML = '';
+            
+            // Optionally clear any other settings if needed
+            localStorage.removeItem('someOtherSetting'); // Example if additional state needs to reset
+        }
+        
         
         
 
