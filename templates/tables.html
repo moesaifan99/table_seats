@@ -363,14 +363,14 @@
             closePopup();  // Close the popup
         }
     
-        function saveTableData() {
-            const table = document.getElementById(activeTable);
-            const tableData = data[activeTable];
-            table.textContent = `Table ${activeTable.slice(-1)}\nSeats: ${tableData.seats}`;
+        //function saveTableData() {
+            //const table = document.getElementById(activeTable);
+            //const tableData = data[activeTable];
+            //table.textContent = `Table ${activeTable.slice(-1)}\nSeats: ${tableData.seats}`;
     
-            updateTotalSeats(tableData);
-            closePopup();
-        }
+            //updateTotalSeats(tableData);
+            //closePopup();
+        //}
     
         function makeDraggable(table) {
             let offsetX, offsetY, dragging = false;
@@ -445,8 +445,18 @@
         // Function to delete saved session
         function deleteSession() {
             // Clear the localStorage data
-            localStorage.removeItem('tableData');
-            localStorage.removeItem('tableCounter');
+            //const data = JSON.parse(localStorage.getItem('tableData')) || {};
+            //console.log(data)
+            //localStorage.removeItem('tableData');
+            //localStorage.removeItem('tableCounter');
+            for (let i = 0; i < localStorage.length; i++) {
+                const key = localStorage.key(i);
+                const value = localStorage.getItem(key);
+                console.log(key, value);
+                localStorage.removeItem(key);
+                localStorage.removeItem(value);
+                console.log(key, value);
+            }
     
             // Optionally, you could also refresh the page or reset the UI
             location.reload();
@@ -546,7 +556,7 @@
             Object.entries(data).forEach(([tableId, tableData]) => {
                 const container = document.getElementById(tableData.containerId);
                 if (!container) {
-                    //console.log("No container")
+                    console.log("No container")
                     //return; // Exit if container doesn't exist
                 }
                 
@@ -563,7 +573,7 @@
                 } else {
                     table.textContent = `Table ${tableData.tableId}\nSeats: ${tableData.seats}`;
                 }
-                console.log(tableData)
+                console.log("tableData:", tableData)
         
                 const seatContainer = document.createElement('div');
                 seatContainer.className = 'seat-container';
@@ -594,27 +604,29 @@
         }
         
         document.getElementById('loadGuestsBtn').addEventListener('click', function() {
-            fetch('/load_moes_guests')  // Replace with your actual endpoint
-                .then(response => response.json())  // Assuming the server returns JSON data
+            fetch('/load_moes_guests') // Replace with your actual endpoint
+                .then(response => response.json()) // Assuming the server returns JSON data
+
                 .then(data => {
                     console.log('Data from server:', data);
         
                     // Retrieve current table data from localStorage
                     const currentData = JSON.parse(localStorage.getItem('tableData') || '{}');
+        
                     // Check if the new data is the same as the current data
                     if (JSON.stringify(currentData) === JSON.stringify(data)) {
                         console.log("JSON is already loaded. Skipping delete and rebuild.");
+                        localStorage.removeItem('tableData');
                         //return;
                     }
-           
-                    deleteSession();
-                    console.log("local storage", localStorage)
-                    // Save the new data into localStorage to reset the state
+        
+                    // Save the new data into localStorage
                     localStorage.setItem('tableData', JSON.stringify(data));
         
-                    // Clear any existing tables or settings before applying the new ones
+                    // Clear existing tables
         
-                    // Rebuild tables or apply settings based on the loaded JSON
+                    // Rebuild tables
+                    //rebuildTables();
                 })
                 .catch(error => {
                     console.error('Error loading data:', error);
