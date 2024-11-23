@@ -278,7 +278,7 @@
   {
     "tableId": "12",
     "containerId": "left-container",
-    "seats": 8,
+    "seats": 9,
     "left": 638,
     "top": 730,
     "families": [
@@ -312,6 +312,10 @@
       },
       {
         "name": "Ali Suaifan",
+        "seats": 1
+      },
+      {
+        "name": "Hussein",
         "seats": 1
       }
     ]
