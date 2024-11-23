@@ -4,7 +4,7 @@
     "containerId": "left-container",
     "seats": 8,
     "left": 656,
-    "top": 121,
+    "top": 120,
     "families": [
       {
         "name": "Khaled Saifan",
@@ -279,8 +279,8 @@
     "tableId": "12",
     "containerId": "left-container",
     "seats": 9,
-    "left": 638,
-    "top": 730,
+    "left": 637,
+    "top": 728,
     "families": [
       {
         "name": "Elias",
@@ -311,11 +311,11 @@
         "seats": 1
       },
       {
-        "name": "Ali Suaifan",
+        "name": "Hussein",
         "seats": 1
       },
       {
-        "name": "Hussein",
+        "name": "John Bitlisli",
         "seats": 1
       }
     ]
