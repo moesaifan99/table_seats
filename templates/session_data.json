@@ -15,17 +15,34 @@
   {
     "tableId": "1",
     "containerId": "right-container",
-    "seats": 0,
+    "seats": 9,
     "left": -256,
     "top": 125,
-    "families": []
+    "families": [
+      {
+        "name": "Mohammad Saleh",
+        "seats": 6
+      },
+      {
+        "name": "Yusra Saleh",
+        "seats": 1
+      },
+      {
+        "name": "Mohammad Emad Saleh",
+        "seats": 1
+      },
+      {
+        "name": "Hussein Saleh",
+        "seats": 1
+      }
+    ]
   },
   {
     "tableId": "2",
     "containerId": "left-container",
-    "seats": 10,
-    "left": 442,
-    "top": 144,
+    "seats": 9,
+    "left": 448,
+    "top": 139,
     "families": [
       {
         "name": "Yahya Saifan",
@@ -33,24 +50,45 @@
       },
       {
         "name": "Akram Yasien",
-        "seats": 5
+        "seats": 4
       }
     ]
   },
   {
     "tableId": "3",
     "containerId": "right-container",
-    "seats": 0,
-    "left": -28,
-    "top": 156,
-    "families": []
+    "seats": 10,
+    "left": -31,
+    "top": 390,
+    "families": [
+      {
+        "name": "Ismail Faraj & Family",
+        "seats": 3
+      },
+      {
+        "name": "Amal Hirzallah",
+        "seats": 1
+      },
+      {
+        "name": "Roqieh",
+        "seats": 1
+      },
+      {
+        "name": "Mr. and Mrs. Maher Deeb ",
+        "seats": 2
+      },
+      {
+        "name": "Sara Deeb, Ibrahim Deeb, Ahmad Deeb",
+        "seats": 3
+      }
+    ]
   },
   {
     "tableId": "4",
     "containerId": "left-container",
     "seats": 10,
-    "left": 264,
-    "top": 276,
+    "left": 449,
+    "top": 381,
     "families": [
       {
         "name": "Ibrahim Suaifan",
@@ -69,17 +107,42 @@
   {
     "tableId": "5",
     "containerId": "right-container",
-    "seats": 0,
-    "left": 146,
+    "seats": 9,
+    "left": 145,
     "top": 278,
-    "families": []
+    "families": [
+      {
+        "name": "Mr. and Mrs. Mohammad Abdelrahim",
+        "seats": 2
+      },
+      {
+        "name": "Lana Abdelrahim",
+        "seats": 1
+      },
+      {
+        "name": "Mr. and Mrs. Omar Abdelrahim",
+        "seats": 2
+      },
+      {
+        "name": "Mr. and Mrs. Tamer Abdelrahim",
+        "seats": 2
+      },
+      {
+        "name": "Samer Deeb",
+        "seats": 1
+      },
+      {
+        "name": "Tamer Deeb",
+        "seats": 1
+      }
+    ]
   },
   {
     "tableId": "6",
     "containerId": "left-container",
     "seats": 9,
-    "left": 453,
-    "top": 391,
+    "left": 261,
+    "top": 267,
     "families": [
       {
         "name": "Saleh Abu Nasir",
@@ -98,10 +161,19 @@
   {
     "tableId": "7",
     "containerId": "right-container",
-    "seats": 0,
-    "left": -28,
-    "top": 384,
-    "families": []
+    "seats": 10,
+    "left": -37,
+    "top": 151,
+    "families": [
+      {
+        "name": "Said Alhayek & Family",
+        "seats": 6
+      },
+      {
+        "name": "Nabil I Saleh & Family",
+        "seats": 4
+      }
+    ]
   },
   {
     "tableId": "8",
@@ -135,10 +207,27 @@
   {
     "tableId": "9",
     "containerId": "right-container",
-    "seats": 0,
-    "left": 155,
-    "top": 515,
-    "families": []
+    "seats": 9,
+    "left": 149,
+    "top": 521,
+    "families": [
+      {
+        "name": "Jamal Saleh & Family",
+        "seats": 3
+      },
+      {
+        "name": "Mr. and Mrs. Nabil J Saleh",
+        "seats": 2
+      },
+      {
+        "name": "Mr. and Mrs. Adnan Saleh",
+        "seats": 2
+      },
+      {
+        "name": "Mr. and Mrs. Riyad Saleh",
+        "seats": 2
+      }
+    ]
   },
   {
     "tableId": "10",
@@ -168,17 +257,30 @@
   {
     "tableId": "11",
     "containerId": "right-container",
-    "seats": 0,
+    "seats": 10,
     "left": -25,
     "top": 648,
-    "families": []
+    "families": [
+      {
+        "name": "Odeh Saleh & Family",
+        "seats": 4
+      },
+      {
+        "name": "Emad Saleh & Family",
+        "seats": 5
+      },
+      {
+        "name": "Samir Saleh",
+        "seats": 1
+      }
+    ]
   },
   {
     "tableId": "12",
     "containerId": "left-container",
     "seats": 8,
     "left": 638,
-    "top": 731,
+    "top": 730,
     "families": [
       {
         "name": "Elias",
@@ -217,9 +319,34 @@
   {
     "tableId": "13",
     "containerId": "right-container",
-    "seats": 0,
-    "left": -214,
-    "top": 732,
-    "families": []
+    "seats": 10,
+    "left": -216,
+    "top": 734,
+    "families": [
+      {
+        "name": "Ruba Hijah & Family",
+        "seats": 5
+      },
+      {
+        "name": "Nour Ahmad",
+        "seats": 1
+      },
+      {
+        "name": "Minna Mohamed",
+        "seats": 1
+      },
+      {
+        "name": "Dania Alaraj",
+        "seats": 1
+      },
+      {
+        "name": "Ghunwah Melhem",
+        "seats": 1
+      },
+      {
+        "name": "Eman Assaf",
+        "seats": 1
+      }
+    ]
   }
 ]

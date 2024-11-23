@@ -654,10 +654,14 @@
             
                 // If any tableId is "0", add 1 to all tableData.tableId entries
                 if (shouldAddOneToAll) {
-                    table.textContent = `Table ${parseInt(tableData.tableId) + 1}\nSeats: ${tableData.seats}`;
+                    table.innerHTML = `<span style="font-size: 1.5em; font-weight: bold; color: black; text-decoration: underline;">Table ${parseInt(tableData.tableId) + 1}</span><br>
+                                       <span style="font-size: 1em;">Seats: ${tableData.seats}</span>`;
                 } else {
-                    table.textContent = `Table ${tableData.tableId}\nSeats: ${tableData.seats}`;
+                    table.innerHTML = `<span style="font-size: 1.5em; font-weight: bold; color: black; text-decoration: underline;">Table ${tableData.tableId}</span><br>
+                                       <span style="font-size: 1em;">Seats: ${tableData.seats}</span>`;
                 }
+                
+                
                 console.log("tableData:", tableData)
         
                 const seatContainer = document.createElement('div');
