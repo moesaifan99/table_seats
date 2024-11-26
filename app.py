@@ -168,6 +168,10 @@ def clear_updates():
 def tables():
     return render_template('tables.html')
 
+@app.route('/notes')
+def notes():
+    return render_template('notes.html')
+
 @app.route('/load_moes_guests', methods=['GET'])
 def load_moes_guests():
     try:

@@ -1,0 +1,282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Notes App</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #1e3c72, #2a5298);
+            color: #fff;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-size: 3rem;
+            margin-top: 20px;
+            color: #f8f9fa;
+            text-shadow: 2px 2px 5px rgba(0, 0, 0, 0.5);
+        }
+
+        .tabs-container {
+            margin-top: 10px;
+            display: flex;
+            gap: 10px;
+        }
+
+        .tab {
+            padding: 10px 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .tab.active {
+            background: #ff7e5f;
+            color: #fff;
+            border-color: #ff7e5f;
+        }
+
+        .notes-container {
+            margin-top: 20px;
+            width: 90%;
+            max-width: 600px;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 80px;
+            border-radius: 10px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+        }
+        
+        textarea {
+            width: 100%;
+            height: 250px;
+            padding: 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            border: none;
+            outline: none;
+        }
+        
+
+        button {
+            margin-top: 10px;
+            padding: 10px 20px;
+            font-size: 1rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        #save-note-btn {
+            background: #4caf50;
+            color: white;
+        }
+
+        #delete-notes-btn {
+            background: #e74c3c;
+            color: white;
+        }
+
+        #delete-all-btn {
+            background: #d35400;
+            color: white;
+            margin-top: 20px;
+        }
+
+        .note-item {
+            display: flex;
+            align-items: center;
+            margin: 10px 0;
+        }
+
+        .note-checkbox {
+            margin-right: 10px;
+            transform: scale(1.2);
+        }
+
+        .notes-list {
+            margin-top: 15px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+    </style>
+</head>
+<body>
+    <h1>Notes App</h1>
+    <button onclick="window.location.href='/'" style="padding: 1px 1px; background-color: #007bff; color: white; border: none; border-radius: 15px; cursor: pointer;">
+        Go Back Home
+    </button>
+    <div class="tabs-container" id="tabs-container"></div>
+    <button id="add-tab-btn">Add Tab</button>
+    <button id="delete-all-btn" onclick="deleteAllNotes()">Delete All Notes</button>
+    <div class="notes-container">
+        <h2 id="current-tab-name" style="text-align: center; color: #f8f9fa;">No Tab Selected</h2>
+        <textarea id="note-area" placeholder="Write your note here..."></textarea>
+        <button id="save-note-btn" onclick="saveNote()">Save Note</button>
+        <div class="notes-list" id="notes-container"></div>
+        <button id="delete-notes-btn" onclick="deleteSelectedNotes()">Delete Selected Notes</button>
+    </div>
+
+    <script>
+        let currentTab = null;
+        const tabPasswords = JSON.parse(localStorage.getItem('tabPasswords')) || {}; // Store tab passwords
+        
+        function init() {
+            loadTabs();
+        }
+        
+        function loadTabs() {
+            const tabsContainer = document.getElementById('tabs-container');
+            const tabs = JSON.parse(localStorage.getItem('tabs')) || [];
+            tabsContainer.innerHTML = '';
+            tabs.forEach(tabName => {
+                const tab = document.createElement('div');
+                tab.className = 'tab';
+                tab.textContent = tabName;
+                tab.onclick = () => switchTab(tabName);
+                if (tabName === currentTab) tab.classList.add('active');
+                tabsContainer.appendChild(tab);
+            });
+        }
+        
+        function addTab() {
+            const tabName = prompt("Enter a new tab name:");
+            if (!tabName) return;
+        
+            const password = prompt("Set a password for this tab:");
+            if (!password) {
+                alert("A password is required!");
+                return;
+            }
+        
+            const tabs = JSON.parse(localStorage.getItem('tabs')) || [];
+            if (tabs.includes(tabName)) {
+                alert("Tab already exists!");
+                return;
+            }
+        
+            tabs.push(tabName);
+            tabPasswords[tabName] = password;
+            localStorage.setItem('tabs', JSON.stringify(tabs));
+            localStorage.setItem('tabPasswords', JSON.stringify(tabPasswords));
+            loadTabs();
+        }
+        
+        function switchTab(tabName) {
+            const enteredPassword = prompt(`Enter the password for ${tabName}:`);
+            const savedPassword = tabPasswords[tabName];
+        
+            if (enteredPassword === savedPassword) {
+                currentTab = tabName;
+                loadTabs();
+                displayNotes();
+        
+                // Update the header in the notes container
+                const currentTabNameElement = document.getElementById('current-tab-name');
+                currentTabNameElement.textContent = `Current Tab: ${tabName}`;
+            } else {
+                alert("Incorrect password!");
+                currentTab = null;
+                loadTabs();
+                displayNotes();
+        
+                // Reset the header in the notes container
+                const currentTabNameElement = document.getElementById('current-tab-name');
+                currentTabNameElement.textContent = "No Tab Selected";
+            }
+        }
+        
+        function saveNote() {
+            if (!currentTab) {
+                alert("Please select a tab first!");
+                return;
+            }
+            const noteArea = document.getElementById('note-area');
+            const noteContent = noteArea.value.trim();
+            if (!noteContent) {
+                alert("Cannot save an empty note!");
+                return;
+            }
+        
+            const timestamp = new Date().toLocaleString();
+            const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
+            savedNotes.push(`[${timestamp}] ${noteContent}`);
+            localStorage.setItem(`note-${currentTab}`, JSON.stringify(savedNotes));
+        
+            noteArea.value = '';
+            displayNotes();
+        }
+        
+        function displayNotes() {
+            if (!currentTab) {
+                document.getElementById('notes-container').innerHTML = '';
+                return;
+            }
+        
+            const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
+            const notesContainer = document.getElementById('notes-container');
+            notesContainer.innerHTML = '';
+        
+            savedNotes.forEach((note, index) => {
+                const noteItem = document.createElement('div');
+                noteItem.className = 'note-item';
+        
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.className = 'note-checkbox';
+                checkbox.value = index;
+        
+                const noteText = document.createElement('span');
+                noteText.textContent = note;
+        
+                noteItem.appendChild(checkbox);
+                noteItem.appendChild(noteText);
+                notesContainer.appendChild(noteItem);
+            });
+        }
+        
+        function deleteSelectedNotes() {
+            if (!currentTab) {
+                alert("Please select a tab first!");
+                return;
+            }
+        
+            const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
+            const checkboxes = document.querySelectorAll('.note-checkbox:checked');
+            const selectedIndexes = Array.from(checkboxes).map(checkbox => parseInt(checkbox.value));
+        
+            const updatedNotes = savedNotes.filter((_, index) => !selectedIndexes.includes(index));
+            localStorage.setItem(`note-${currentTab}`, JSON.stringify(updatedNotes));
+            displayNotes();
+        }
+        
+        function deleteAllNotes() {
+            if (confirm("Are you sure you want to delete all notes for all tabs?")) {
+                localStorage.clear();
+                currentTab = null;
+                loadTabs();
+                displayNotes();
+        
+                // Reset the header in the notes container
+                const currentTabNameElement = document.getElementById('current-tab-name');
+                currentTabNameElement.textContent = "No Tab Selected";
+            }
+        }
+        
+        document.getElementById('add-tab-btn').onclick = addTab;
+        init();
+        
+    </script>
+</body>
+</html>
