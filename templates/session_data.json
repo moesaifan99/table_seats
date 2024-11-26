@@ -55,7 +55,7 @@
     ]
   },
   {
-    "tableId": "3",
+    "tableId": "7",
     "containerId": "right-container",
     "seats": 10,
     "left": -31,
@@ -84,7 +84,7 @@
     ]
   },
   {
-    "tableId": "4",
+    "tableId": "6",
     "containerId": "left-container",
     "seats": 10,
     "left": 449,
@@ -138,7 +138,7 @@
     ]
   },
   {
-    "tableId": "6",
+    "tableId": "4",
     "containerId": "left-container",
     "seats": 9,
     "left": 261,
@@ -159,7 +159,7 @@
     ]
   },
   {
-    "tableId": "7",
+    "tableId": "3",
     "containerId": "right-container",
     "seats": 10,
     "left": -37,
