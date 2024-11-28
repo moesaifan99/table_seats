@@ -199,6 +199,15 @@ def load_moes_guests():
         return jsonify({"error": "session_data.json not found"}), 404
     except json.JSONDecodeError:
         return jsonify({"error": "Error decoding session_data.json"}), 400
+    
+@app.route('/messages', methods=['GET'])
+def get_messages():
+    try:
+        with open(os.path.join('templates', 'message_session.json')) as f:
+            messages = json.load(f)
+        return jsonify(messages)
+    except Exception as e:
+        return jsonify({"error": "Error loading message session", "message": str(e)}), 500
 
 if __name__ == '__main__':
     app.run(debug=True)

@@ -158,8 +158,8 @@
     <div>
         <button onclick="downloadMessageSession()">Download Notes</button>
         <button onclick="loadMessageSession()">Load Notes</button>
+        <button onclick="loadMessages()">Load Messages</button> <!-- New Button -->
     </div>
-    
 
     <script>
         let currentTab = null;
@@ -269,119 +269,71 @@
             const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
             const notesContainer = document.getElementById('notes-container');
             notesContainer.innerHTML = '';
-        
-            savedNotes.forEach((note, index) => {
+            savedNotes.forEach(note => {
                 const noteBubble = document.createElement('div');
                 noteBubble.className = 'note-bubble';
-        
-                const noteText = document.createElement('p');
-                noteText.className = 'note-text';
-        
-                // Convert URLs in the note to hyperlinks
-                const urlRegex = /(https?:\/\/[^\s]+)/g;
-                const noteWithLinks = note.replace(urlRegex, (url) => `<a href="${url}" target="_blank" style="color: #ffdb4d;">${url}</a>`);
-                noteText.innerHTML = noteWithLinks;
-        
-                const checkbox = document.createElement('input');
-                checkbox.type = 'checkbox';
-                checkbox.className = 'note-checkbox';
-                checkbox.value = index;
-        
-                noteBubble.appendChild(noteText);
-                noteBubble.appendChild(checkbox);
+                noteBubble.innerHTML = `
+                    <span class="note-text">${note}</span>
+                    <input type="checkbox" class="note-checkbox" onclick="updateNoteSelection(event)">
+                `;
                 notesContainer.appendChild(noteBubble);
             });
         }
-        
-        
+
+        function updateNoteSelection(event) {
+            const noteCheckboxes = document.querySelectorAll('.note-checkbox');
+            const selectedNotes = [];
+            noteCheckboxes.forEach((checkbox, index) => {
+                if (checkbox.checked) {
+                    selectedNotes.push(index);
+                }
+            });
+            sessionStorage.setItem('selectedNotes', JSON.stringify(selectedNotes));
+        }
+
         function deleteSelectedNotes() {
-            if (!currentTab) {
-                alert("Please select a tab first!");
+            const selectedNotes = JSON.parse(sessionStorage.getItem('selectedNotes')) || [];
+            if (!selectedNotes.length) {
+                alert("No notes selected for deletion!");
                 return;
             }
-
             const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
-            const checkboxes = document.querySelectorAll('.note-checkbox:checked');
-            const selectedIndexes = Array.from(checkboxes).map(checkbox => parseInt(checkbox.value));
-
-            const updatedNotes = savedNotes.filter((_, index) => !selectedIndexes.includes(index));
-            localStorage.setItem(`note-${currentTab}`, JSON.stringify(updatedNotes));
+            selectedNotes.sort((a, b) => b - a); // Sort in reverse order to avoid index issues during deletion
+            selectedNotes.forEach(index => savedNotes.splice(index, 1));
+            localStorage.setItem(`note-${currentTab}`, JSON.stringify(savedNotes));
             displayNotes();
         }
 
         function deleteAllNotes() {
-            if (confirm("Are you sure you want to delete all notes for all tabs?")) {
-                localStorage.clear();
-                currentTab = null;
-                loadTabs();
-                displayNotes();
-
-                const currentTabNameElement = document.getElementById('current-tab-name');
-                currentTabNameElement.textContent = "No Tab Selected";
+            if (!currentTab) {
+                alert("Please select a tab first!");
+                return;
             }
+            localStorage.removeItem(`note-${currentTab}`);
+            displayNotes();
         }
 
-        // Function to download all notes as a JSON file
-        function downloadMessageSession() {
-            const allNotes = {};
-
-            // Collect all notes from localStorage
-            for (let key in localStorage) {
-                if (key.startsWith('note-')) {
-                    allNotes[key] = JSON.parse(localStorage.getItem(key));
-                }
-            }
-
-            // Convert to JSON and create a downloadable file
-            const json = JSON.stringify(allNotes, null, 2);
-            const blob = new Blob([json], { type: 'application/json' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = 'message_session.json';
-            link.click();
+        function loadMessages() {
+            fetch('/static/templates/message_session.json')
+                .then(response => response.json())
+                .then(data => {
+                    const notesContainer = document.getElementById('notes-container');
+                    notesContainer.innerHTML = ''; // Clear current notes
+                    data.forEach((note) => {
+                        const noteBubble = document.createElement('div');
+                        noteBubble.className = 'note-bubble';
+                        noteBubble.innerHTML = `
+                            <span class="note-text">${note.message}</span>
+                        `;
+                        notesContainer.appendChild(noteBubble);
+                    });
+                })
+                .catch((error) => {
+                    console.error("Error loading messages:", error);
+                });
         }
-
-        // Function to load notes from a JSON file
-        function loadMessageSession() {
-            const input = document.createElement('input');
-            input.type = 'file';
-            input.accept = 'application/json';
-
-            input.onchange = (event) => {
-                const file = event.target.files[0];
-                if (!file) return;
-
-                const reader = new FileReader();
-                reader.onload = (e) => {
-                    try {
-                        const data = JSON.parse(e.target.result);
-
-                        // Validate data and update localStorage
-                        if (typeof data === 'object') {
-                            for (let key in data) {
-                                if (key.startsWith('note-') && Array.isArray(data[key])) {
-                                    localStorage.setItem(key, JSON.stringify(data[key]));
-                                }
-                            }
-                            alert('Notes successfully loaded!');
-                            displayNotes(); // Refresh the displayed notes
-                        } else {
-                            alert('Invalid JSON format.');
-                        }
-                    } catch (error) {
-                        alert('Error loading JSON file: ' + error.message);
-                    }
-                };
-
-                reader.readAsText(file);
-            };
-
-            input.click();
-        }
-    
-
-        document.getElementById('add-tab-btn').onclick = () => alert("Please Select Vendor Tab From Above!");
-        init();
+        
+        init(); // Initialize on load
     </script>
 </body>
 </html>
