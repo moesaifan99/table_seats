@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Notes App</title>
+    <title>Vendors</title>
     <style>
         body {
             margin: 0;
@@ -55,7 +55,7 @@
             border-radius: 10px;
             border: 1px solid rgba(255, 255, 255, 0.3);
         }
-        
+
         textarea {
             width: 100%;
             height: 250px;
@@ -65,7 +65,6 @@
             border: none;
             outline: none;
         }
-        
 
         button {
             margin-top: 10px;
@@ -110,16 +109,42 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        .note-bubble {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            background: #007aff;
+            color: white;
+            padding: 10px 15px;
+            border-radius: 20px;
+            margin: 10px 0;
+            position: relative;
+            box-shadow: 2px 2px 5px rgba(0, 0, 0, 0.2);
+            max-width: 80%;
+            word-wrap: break-word;
+        }
+        
+        .note-bubble .note-text {
+            flex: 1;
+            font-size: 1.1rem;
+            margin-right: 10px;
+        }
+        
+        .note-checkbox {
+            margin-left: 10px;
+            transform: scale(1.2);
+        }
+        
     </style>
 </head>
 <body>
-    <h1>Notes App</h1>
-    <button onclick="window.location.href='/'" style="padding: 1px 1px; background-color: #007bff; color: white; border: none; border-radius: 15px; cursor: pointer;">
-        Go Back Home
-    </button>
+    <h1>Vendors</h1>
+    <div>
+        <button onclick="window.location.href='/'" style="padding: 10px 10px; background-color: #007bff; color: white; border: none; border-radius: 3px; cursor: pointer;">Go Back Home</button>
+        <button id="delete-all-btn" onclick="deleteAllNotes()">Delete All Notes</button>
+    </div>
     <div class="tabs-container" id="tabs-container"></div>
-    <button id="add-tab-btn">Add Tab</button>
-    <button id="delete-all-btn" onclick="deleteAllNotes()">Delete All Notes</button>
+    <button id="add-tab-btn">Select Vendor</button>
     <div class="notes-container">
         <h2 id="current-tab-name" style="text-align: center; color: #f8f9fa;">No Tab Selected</h2>
         <textarea id="note-area" placeholder="Write your note here..."></textarea>
@@ -127,18 +152,39 @@
         <div class="notes-list" id="notes-container"></div>
         <button id="delete-notes-btn" onclick="deleteSelectedNotes()">Delete Selected Notes</button>
     </div>
+    <div>
+        <button onclick="downloadMessageSession()">Download Notes</button>
+        <button onclick="loadMessageSession()">Load Notes</button>
+    </div>
+    
 
     <script>
         let currentTab = null;
-        const tabPasswords = JSON.parse(localStorage.getItem('tabPasswords')) || {}; // Store tab passwords
-        
-        function init() {
+        let tabPasswords = {}; // Store tab passwords
+
+        // Fetch passwords from backend
+        async function fetchPasswords() {
+            try {
+                const response = await fetch('/get_passwords');
+                if (response.ok) {
+                    tabPasswords = await response.json();
+                    console.log("Passwords fetched:", tabPasswords);
+                } else {
+                    console.error("Failed to fetch passwords");
+                }
+            } catch (error) {
+                console.error("Error fetching passwords:", error);
+            }
+        }
+
+        async function init() {
+            await fetchPasswords();
             loadTabs();
         }
-        
+
         function loadTabs() {
             const tabsContainer = document.getElementById('tabs-container');
-            const tabs = JSON.parse(localStorage.getItem('tabs')) || [];
+            const tabs = Object.keys(tabPasswords); // Tabs from fetched passwords
             tabsContainer.innerHTML = '';
             tabs.forEach(tabName => {
                 const tab = document.createElement('div');
@@ -149,40 +195,34 @@
                 tabsContainer.appendChild(tab);
             });
         }
-        
-        function addTab() {
-            const tabName = prompt("Enter a new tab name:");
-            if (!tabName) return;
-        
-            const password = prompt("Set a password for this tab:");
-            if (!password) {
-                alert("A password is required!");
-                return;
-            }
-        
-            const tabs = JSON.parse(localStorage.getItem('tabs')) || [];
-            if (tabs.includes(tabName)) {
-                alert("Tab already exists!");
-                return;
-            }
-        
-            tabs.push(tabName);
-            tabPasswords[tabName] = password;
-            localStorage.setItem('tabs', JSON.stringify(tabs));
-            localStorage.setItem('tabPasswords', JSON.stringify(tabPasswords));
-            loadTabs();
-        }
-        
+
         function switchTab(tabName) {
+            // Check if the tab is already authenticated in sessionStorage
+            const authenticatedTabs = JSON.parse(sessionStorage.getItem('authenticatedTabs')) || [];
+            if (authenticatedTabs.includes(tabName)) {
+                currentTab = tabName;
+                loadTabs();
+                displayNotes();
+        
+                const currentTabNameElement = document.getElementById('current-tab-name');
+                currentTabNameElement.textContent = `Current Tab: ${tabName}`;
+                return;
+            }
+        
+            // Prompt for password if not authenticated
             const enteredPassword = prompt(`Enter the password for ${tabName}:`);
             const savedPassword = tabPasswords[tabName];
         
             if (enteredPassword === savedPassword) {
                 currentTab = tabName;
+        
+                // Add the tab to sessionStorage as authenticated
+                authenticatedTabs.push(tabName);
+                sessionStorage.setItem('authenticatedTabs', JSON.stringify(authenticatedTabs));
+        
                 loadTabs();
                 displayNotes();
         
-                // Update the header in the notes container
                 const currentTabNameElement = document.getElementById('current-tab-name');
                 currentTabNameElement.textContent = `Current Tab: ${tabName}`;
             } else {
@@ -191,12 +231,11 @@
                 loadTabs();
                 displayNotes();
         
-                // Reset the header in the notes container
                 const currentTabNameElement = document.getElementById('current-tab-name');
                 currentTabNameElement.textContent = "No Tab Selected";
             }
-        }
-        
+        }        
+
         function saveNote() {
             if (!currentTab) {
                 alert("Please select a tab first!");
@@ -208,16 +247,16 @@
                 alert("Cannot save an empty note!");
                 return;
             }
-        
+
             const timestamp = new Date().toLocaleString();
             const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
             savedNotes.push(`[${timestamp}] ${noteContent}`);
             localStorage.setItem(`note-${currentTab}`, JSON.stringify(savedNotes));
-        
+
             noteArea.value = '';
             displayNotes();
         }
-        
+
         function displayNotes() {
             if (!currentTab) {
                 document.getElementById('notes-container').innerHTML = '';
@@ -229,20 +268,21 @@
             notesContainer.innerHTML = '';
         
             savedNotes.forEach((note, index) => {
-                const noteItem = document.createElement('div');
-                noteItem.className = 'note-item';
+                const noteBubble = document.createElement('div');
+                noteBubble.className = 'note-bubble';
+        
+                const noteText = document.createElement('p');
+                noteText.className = 'note-text';
+                noteText.textContent = note;
         
                 const checkbox = document.createElement('input');
                 checkbox.type = 'checkbox';
                 checkbox.className = 'note-checkbox';
                 checkbox.value = index;
         
-                const noteText = document.createElement('span');
-                noteText.textContent = note;
-        
-                noteItem.appendChild(checkbox);
-                noteItem.appendChild(noteText);
-                notesContainer.appendChild(noteItem);
+                noteBubble.appendChild(noteText);
+                noteBubble.appendChild(checkbox);
+                notesContainer.appendChild(noteBubble);
             });
         }
         
@@ -251,32 +291,89 @@
                 alert("Please select a tab first!");
                 return;
             }
-        
+
             const savedNotes = JSON.parse(localStorage.getItem(`note-${currentTab}`)) || [];
             const checkboxes = document.querySelectorAll('.note-checkbox:checked');
             const selectedIndexes = Array.from(checkboxes).map(checkbox => parseInt(checkbox.value));
-        
+
             const updatedNotes = savedNotes.filter((_, index) => !selectedIndexes.includes(index));
             localStorage.setItem(`note-${currentTab}`, JSON.stringify(updatedNotes));
             displayNotes();
         }
-        
+
         function deleteAllNotes() {
             if (confirm("Are you sure you want to delete all notes for all tabs?")) {
                 localStorage.clear();
                 currentTab = null;
                 loadTabs();
                 displayNotes();
-        
-                // Reset the header in the notes container
+
                 const currentTabNameElement = document.getElementById('current-tab-name');
                 currentTabNameElement.textContent = "No Tab Selected";
             }
         }
-        
-        document.getElementById('add-tab-btn').onclick = addTab;
+
+        // Function to download all notes as a JSON file
+        function downloadMessageSession() {
+            const allNotes = {};
+
+            // Collect all notes from localStorage
+            for (let key in localStorage) {
+                if (key.startsWith('note-')) {
+                    allNotes[key] = JSON.parse(localStorage.getItem(key));
+                }
+            }
+
+            // Convert to JSON and create a downloadable file
+            const json = JSON.stringify(allNotes, null, 2);
+            const blob = new Blob([json], { type: 'application/json' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = 'message_session.json';
+            link.click();
+        }
+
+        // Function to load notes from a JSON file
+        function loadMessageSession() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'application/json';
+
+            input.onchange = (event) => {
+                const file = event.target.files[0];
+                if (!file) return;
+
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        const data = JSON.parse(e.target.result);
+
+                        // Validate data and update localStorage
+                        if (typeof data === 'object') {
+                            for (let key in data) {
+                                if (key.startsWith('note-') && Array.isArray(data[key])) {
+                                    localStorage.setItem(key, JSON.stringify(data[key]));
+                                }
+                            }
+                            alert('Notes successfully loaded!');
+                            displayNotes(); // Refresh the displayed notes
+                        } else {
+                            alert('Invalid JSON format.');
+                        }
+                    } catch (error) {
+                        alert('Error loading JSON file: ' + error.message);
+                    }
+                };
+
+                reader.readAsText(file);
+            };
+
+            input.click();
+        }
+    
+
+        document.getElementById('add-tab-btn').onclick = () => alert("Please Select Vendor Tab From Above!");
         init();
-        
     </script>
 </body>
 </html>

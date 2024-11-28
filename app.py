@@ -172,6 +172,17 @@ def tables():
 def notes():
     return render_template('notes.html')
 
+# Predefine tab passwords in the backend
+TAB_PASSWORDS = {
+    "Ammar Shots": "Ammar",
+    "May Events": "May",
+    "DJ Ibrahim": "DJ"
+}
+
+@app.route('/get_passwords', methods=['GET'])
+def get_passwords():
+    return jsonify(TAB_PASSWORDS)
+
 @app.route('/load_moes_guests', methods=['GET'])
 def load_moes_guests():
     try:
