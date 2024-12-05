@@ -15,7 +15,7 @@
   {
     "tableId": "1",
     "containerId": "right-container",
-    "seats": 9,
+    "seats": 8,
     "left": -256,
     "top": 125,
     "families": [
@@ -25,10 +25,6 @@
       },
       {
         "name": "Yusra Saleh",
-        "seats": 1
-      },
-      {
-        "name": "Mohammad Emad Saleh",
         "seats": 1
       },
       {
@@ -262,19 +258,19 @@
         "seats": 4
       },
       {
-        "name": "Emad Saleh & Family",
-        "seats": 5
-      },
-      {
         "name": "Samir Saleh",
         "seats": 1
+      },
+      {
+        "name": "Ruba Hijah & Family",
+        "seats": 5
       }
     ]
   },
   {
     "tableId": "12",
     "containerId": "left-container",
-    "seats": 9,
+    "seats": 10,
     "left": 635,
     "top": 728,
     "families": [
@@ -313,20 +309,20 @@
       {
         "name": "John Bitlisli",
         "seats": 1
+      },
+      {
+        "name": "Mohammad Hazama",
+        "seats": 1
       }
     ]
   },
   {
     "tableId": "13",
     "containerId": "right-container",
-    "seats": 10,
+    "seats": 11,
     "left": -216,
-    "top": 734,
+    "top": 733,
     "families": [
-      {
-        "name": "Ruba Hijah & Family",
-        "seats": 5
-      },
       {
         "name": "Nour Ahmad",
         "seats": 1
@@ -345,6 +341,30 @@
       },
       {
         "name": "Eman Assaf",
+        "seats": 1
+      },
+      {
+        "name": "Niveen Elsadek",
+        "seats": 1
+      },
+      {
+        "name": "Zaina Rafee",
+        "seats": 1
+      },
+      {
+        "name": "Sereen Rafee",
+        "seats": 1
+      },
+      {
+        "name": "Fakhrieh Ahmad",
+        "seats": 1
+      },
+      {
+        "name": "Reem Ahmad",
+        "seats": 1
+      },
+      {
+        "name": "Diana Rabah",
         "seats": 1
       }
     ]
